@@ -10,6 +10,29 @@ from math import atan as atan
 pi = math.pi
 
 
+def generate_inertial_data(ecc, a, theta_start=0, theta_end=2*pi, delta_omega=0):
+    """
+    Get a vector for the plot of a body in an inertial frame
+    Inputs:
+        ecc: eccentricity of the resonant body
+        a: SMA of the orbit
+        theta_start: starting TA for the reference body
+        theta_end: ending TA of the reference body
+        delta_omega: difference in AOP of the resonant body wrt the reference
+                    body
+
+    Outputs:
+        r: array of the resonant body in the inertial frame
+    """
+
+    p = a*(1-ecc)
+    n_pts = 1000
+    for i, theta in enumerate(np.linspace(theta_start, theta_end, n_pts)):
+        r = BP2_position_vector_inertial(theta, ecc, p)
+    r = np.asarray(r)
+    return r
+
+
 def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
                            theta_end, delta_omega=0):
     """
