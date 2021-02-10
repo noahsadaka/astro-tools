@@ -45,19 +45,20 @@ def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
     # Generate points
     for ind, theta in enumerate(np.linspace(theta_start, theta_end, n_pts)):
         time = BP2_time_from_theta(theta, e_ref, n_ref)
-        if theta > 2*math.pi:
-            time += IP_ref
-        if theta > 4*math.pi:
-            time += IP_ref
-        if theta > 6*math.pi:
-            time += IP_ref
-        if theta > 8*math.pi:
-            time += IP_ref
+        time = update_time_along_orbit(time, theta, IP_ref)
         rA_r.append(BP2_position_vector_rotating(theta, ecc, p_A, theta,
                     time=time, n=n_A, d_omega=delta_omega))
     rA_r = np.asarray(rA_r)
 
     return rA_r
+
+
+def update_time_along_orbit(time, theta, IP):
+    num_periods = math.floor(theta/(2*math.pi))
+    for i in range(1, num_periods+1):
+        if theta > i*2*pi:
+            time += IP
+    return time
 
 
 def BP2_position_vector_rotating(theta, e, p, theta_r, d_omega=0,
