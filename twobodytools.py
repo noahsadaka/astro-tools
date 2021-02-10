@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import math
-pi = math.pi
 from math import sqrt as sqrt
 from math import cos as cos
 from math import sin as sin
@@ -9,8 +7,61 @@ from math import acos as acos
 from math import asin as asin
 from math import tan as tan
 from math import atan as atan
+pi = math.pi
 
-def BP2_position_vector_rotating(theta, e, p, theta_r, d_omega=0, time=math.nan, n=math.nan):
+
+def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
+                           theta_end, delta_omega=0):
+    """
+    Get a vector for the plot of a body in the relative 2 body problem
+    rotating in the Sun-Ref frame, where Ref is some reference body
+
+    Inputs:
+        resonance: Resonance ratio wrt the ref body
+        ecc: eccentricity of the resonant body
+        mu: gravitational parameter of the central body
+        a_ref: SMA of the reference body orbit
+        theta_start: starting TA for the reference body
+        theta_end: ending TA of the reference body
+        delta_omega: difference in AOP of the resonant body wrt the reference
+                    body
+
+    Outputs:
+        rA_r: array of the resonant body in the Sun-Ref frame
+    """
+    # Calculate orbital params
+    IP_ref = 2*pi/sqrt(mu/a_ref**3)
+    IP_A = IP_ref * resonance
+    n_ref = 2*pi/IP_ref
+    n_A = 2*pi/IP_A
+    a_A = (mu/n_A**2)**(1/3)
+    e_ref = 0
+    p_A = a_A*(1-ecc)
+
+    # Define points on orbit and set up problem
+    n_pts = 2500
+    rA_r = []
+
+    # Generate points
+    for ind, theta in enumerate(np.linspace(theta_start, theta_end, n_pts)):
+        time = BP2_time_from_theta(theta, e_ref, n_ref)
+        if theta > 2*math.pi:
+            time += IP_ref
+        if theta > 4*math.pi:
+            time += IP_ref
+        if theta > 6*math.pi:
+            time += IP_ref
+        if theta > 8*math.pi:
+            time += IP_ref
+        rA_r.append(BP2_position_vector_rotating(theta, ecc, p_A, theta,
+                    time=time, n=n_A, d_omega=delta_omega))
+    rA_r = np.asarray(rA_r)
+
+    return rA_r
+
+
+def BP2_position_vector_rotating(theta, e, p, theta_r, d_omega=0,
+                                 time=math.nan, n=math.nan):
     """
     Return a position vector in relative x-y coordinates.
 
@@ -22,7 +73,8 @@ def BP2_position_vector_rotating(theta, e, p, theta_r, d_omega=0, time=math.nan,
         time: time past periapsis [s] (float)
         n: mean motion [km/s] (float)
 
-        r_x_r, r_y_r: radius positions in relative x and y coordinates [km] (float)
+        r_x_r, r_y_r: radius positions in relative x and y coordinates [km]
+                      (float)
     """
     if not math.isnan(time):
         if math.isnan(n):
@@ -30,10 +82,10 @@ def BP2_position_vector_rotating(theta, e, p, theta_r, d_omega=0, time=math.nan,
             exit()
         theta = BP2_theta_from_time(time, e, n)
     r_mag = p/(1+e*math.cos(theta))
-    r_e = r_mag * math.cos(theta+d_omega) 
-    r_p = r_mag * math.sin(theta+d_omega) 
-    r_x_r = cos(theta_r)*r_e + sin(theta_r)*r_p 
-    r_y_r = -sin(theta_r)*r_e + cos(theta_r)*r_p 
+    r_e = r_mag * math.cos(theta+d_omega)
+    r_p = r_mag * math.sin(theta+d_omega)
+    r_x_r = cos(theta_r)*r_e + sin(theta_r)*r_p
+    r_y_r = -sin(theta_r)*r_e + cos(theta_r)*r_p
 
     return r_x_r, r_y_r
 
@@ -53,10 +105,11 @@ def BP2_position_vector_inertial(theta, e, p, d_omega=0, time=math.nan, n=0):
     """
     if not math.isnan(time):
         theta = BP2_theta_from_time(time, e, n)
-    r_mag = p/(1+e*math.cos(theta)) # position vector magnitude [km]
-    r_e = r_mag * math.cos(theta+d_omega) # position vector e-component [km]
-    r_p = r_mag * math.sin(theta+d_omega) # position vector p-component [km]
+    r_mag = p/(1+e*math.cos(theta))  # position vector magnitude [km]
+    r_e = r_mag * math.cos(theta+d_omega)  # position vector e-component [km]
+    r_p = r_mag * math.sin(theta+d_omega)  # position vector p-component [km]
     return r_e, r_p
+
 
 def BP2_theta_from_time(time, e, n):
     """
@@ -73,6 +126,7 @@ def BP2_theta_from_time(time, e, n):
     theta = keplereqn(e, M)
     return theta
 
+
 def BP2_time_from_theta(theta, e, n):
     """
     Get the time past periapsis when at a certain true anomaly
@@ -88,6 +142,7 @@ def BP2_time_from_theta(theta, e, n):
         time = 2*pi/n - abs(time)
     return time
 
+
 def keplereqn(e, M):
     En = M
     d_E = 100
@@ -97,5 +152,3 @@ def keplereqn(e, M):
         En = En1
     theta = 2*atan(sqrt((1+e)/(1-e)) * tan(En/2))
     return theta
-
-
