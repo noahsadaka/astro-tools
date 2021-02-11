@@ -10,7 +10,7 @@ from math import atan as atan
 pi = math.pi
 
 
-def generate_inertial_data(ecc, a, theta_start=0, theta_end=2*pi, delta_omega=0):
+def generate_inertial_data(ecc, a, theta_start=0, theta_end=2*pi, delta_omega=0, IP=math.nan, mu=math.nan):
     """
     Get a vector for the plot of a body in an inertial frame
     Inputs:
@@ -24,11 +24,17 @@ def generate_inertial_data(ecc, a, theta_start=0, theta_end=2*pi, delta_omega=0)
     Outputs:
         r: array of the resonant body in the inertial frame
     """
-
-    p = a*(1-ecc)
+    if not math.isnan(IP):
+        if math.isnan(mu):
+            print('Error, must give a mu if using IP to get a')
+        else:
+            n = 2*pi/IP
+            a = (mu/n**2)**(1/3)
+    p = a*(1-ecc**2)
     n_pts = 1000
+    r = []
     for i, theta in enumerate(np.linspace(theta_start, theta_end, n_pts)):
-        r = BP2_position_vector_inertial(theta, ecc, p)
+        r.append(BP2_position_vector_inertial(theta, ecc, p, d_omega=delta_omega))
     r = np.asarray(r)
     return r
 
@@ -59,7 +65,7 @@ def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
     n_A = 2*pi/IP_A
     a_A = (mu/n_A**2)**(1/3)
     e_ref = 0
-    p_A = a_A*(1-ecc)
+    p_A = a_A*(1-ecc**2)
 
     # Define points on orbit and set up problem
     n_pts = 2500
