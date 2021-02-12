@@ -40,7 +40,7 @@ def generate_inertial_data(ecc, a, theta_start=0, theta_end=2*pi, delta_omega=0,
 
 
 def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
-                           theta_end, delta_omega=0):
+                           theta_end, delta_omega=0, delta_TA=0):
     """
     Get a vector for the plot of a body in the relative 2 body problem
     rotating in the Sun-Ref frame, where Ref is some reference body
@@ -52,8 +52,8 @@ def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
         a_ref: SMA of the reference body orbit
         theta_start: starting TA for the reference body
         theta_end: ending TA of the reference body
-        delta_omega: difference in AOP of the resonant body wrt the reference
-                    body
+        delta_omega: difference in AOP of the resonant body wrt the reference body
+        delta_TA: adds an offset for the starting TA
 
     Outputs:
         rA_r: array of the resonant body in the Sun-Ref frame
@@ -71,12 +71,18 @@ def generate_rotating_data(resonance, ecc, mu, a_ref, theta_start,
     n_pts = 2500
     rA_r = []
 
+    # Get time past periapsis for a changed starting TA
+    if delta_TA > 0:
+        t_tp = BP2_time_from_theta(delta_TA, ecc, n_A)
+    else:
+        t_tp = 0
+
     # Generate points
     for ind, theta in enumerate(np.linspace(theta_start, theta_end, n_pts)):
         time = BP2_time_from_theta(theta, e_ref, n_ref)
         time = update_time_along_orbit(time, theta, IP_ref)
         rA_r.append(BP2_position_vector_rotating(theta, ecc, p_A, theta,
-                    time=time, n=n_A, d_omega=delta_omega))
+                    time=time+t_tp, n=n_A, d_omega=delta_omega))
     rA_r = np.asarray(rA_r)
 
     return rA_r
