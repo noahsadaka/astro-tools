@@ -101,14 +101,15 @@ def BP2_position_vector_rotating(theta, e, p, theta_r, d_omega=0,
     """
     Return a position vector in relative x-y coordinates.
 
+    Inputs:
         theta: true anomaly [rad] (float)
         e: eccentricity (float)
         p: semi-latus rectum [km] (float)
-        theta_r: true anomaly of the body fixed in the relative frame
+        theta_r: true anomaly of the body fixed in the rotating frame
         d_omega: AoP [rad] (float)
         time: time past periapsis [s] (float)
         n: mean motion [km/s] (float)
-
+    Outputs:
         r_x_r, r_y_r: radius positions in relative x and y coordinates [km]
                       (float)
     """

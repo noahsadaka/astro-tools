@@ -115,8 +115,9 @@ def check_DCM(DCM):
         tol = 1-abs(sqrt(DCM[i, 0]**2 + DCM[i, 1]**2 + DCM[i, 2]**2))
         if tol > 1e-6:
             badflag = 1
+            bad=i
     if badflag == 1:
-        print(f'DCM does not satisfy orthogonality conditions {DCM}')
+        print(f'DCM does not satisfy orthogonality conditions {DCM[bad,:]} with tol {tol:.3E}')
 
 
 def check_quaternion(e):
