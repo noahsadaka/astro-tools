@@ -52,7 +52,7 @@ def lagrange_points(mu, tol=1e-8):
     L4, L5 = L45_calc(mu)
     return L1, L2, L3, L4, L5
 
-def L1_calc(mu, tol=1e-8):
+def L1_calc(mu, tol=1e-12):
     """
     Returns the x,y coordinates of the L1 in a CR3BP system
 
@@ -63,7 +63,7 @@ def L1_calc(mu, tol=1e-8):
     Outputs:
         Li: [x,y] coordinates of the L1 point
     """
-    xn=mu
+    xn = 0.999
     curtol = 1
     while curtol > tol:
         x_n1 = xn - ((1-mu)/(1-xn)**2 - mu/xn**2 - 1 + mu + xn)/(2*(1-mu)/(1-xn)**3 + 2*mu/xn**3 + 1)
@@ -73,7 +73,8 @@ def L1_calc(mu, tol=1e-8):
     JC = coord[0]**2 + coord[1]**2 + 2*(1-mu)/np.linalg.norm(get_d(coord[0], coord[1], mu)) + 2*mu/np.linalg.norm(get_r(coord[0], coord[1], mu))
     return (coord, JC)
 
-def L2_calc(mu, tol=1e-8):
+
+def L2_calc(mu, tol=1e-12):
     """
     Returns the x,y coordinates of the L2 in a CR3BP system
 
@@ -84,7 +85,7 @@ def L2_calc(mu, tol=1e-8):
     Outputs:
         Li: [x,y] coordinates of the L2 point
     """
-    xn=mu
+    xn = 1.001
     curtol = 1
     while curtol > tol:
         x_n1 = xn - ((1-mu)/(xn+1)**2 + mu/xn**2 - 1 + mu - xn)/(-2*(1-mu)/(xn+1)**3 - 2*mu/xn**3 - 1)
@@ -94,7 +95,7 @@ def L2_calc(mu, tol=1e-8):
     JC = coord[0]**2 + coord[1]**2 + 2*(1-mu)/np.linalg.norm(get_d(coord[0], coord[1], mu)) + 2*mu/np.linalg.norm(get_r(coord[0], coord[1], mu))
     return (coord, JC)
 
-def L3_calc(mu, tol=1e-8):
+def L3_calc(mu, tol=1e-12):
     """
     Returns the x,y coordinates of the L3 in a CR3BP system
 
@@ -106,7 +107,7 @@ def L3_calc(mu, tol=1e-8):
         Li: [x,y] coordinates of the L3 point
     """
     curtol = 1
-    xn = mu
+    xn = -1.001
     while curtol > tol:
         x_n1 = xn - (-(1-mu)/(xn)**2 - (mu)/(xn+1)**2 + xn + mu)/(2*(1-mu)/(xn)**3 + 2*mu/(xn+1)**3+1)
         curtol = abs(x_n1-xn)
@@ -114,6 +115,7 @@ def L3_calc(mu, tol=1e-8):
     coord = [-mu-xn, 0]
     JC = coord[0]**2 + coord[1]**2 + 2*(1-mu)/np.linalg.norm(get_d(coord[0], coord[1], mu)) + 2*mu/np.linalg.norm(get_r(coord[0], coord[1], mu))
     return (coord, JC)
+
 
 def L45_calc(mu):
     """
